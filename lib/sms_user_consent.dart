@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 /// This plugin can be used to retrieve user's phone number and request user
 /// consent to read a single SMS verification message.
 class SmsUserConsent {
-  static const MethodChannel _channel = const MethodChannel('sms_user_consent');
+  static MethodChannel channel = const MethodChannel('sms_user_consent');
   Function? _phoneNumberListener;
   Function? _smsListener;
   String? _selectedPhoneNumber;
@@ -30,6 +30,9 @@ class SmsUserConsent {
   /// - The message was sent by a phone number that's not in the user's contacts.
   /// - If you specified the sender's phone number, the message was sent by that number.
   SmsUserConsent({Function? phoneNumberListener, Function? smsListener}) {
+    if(channel == null){
+    channel = const MethodChannel('sms_user_consent');
+    }
     _phoneNumberListener = phoneNumberListener;
     _smsListener = smsListener;
     _channel.setMethodCallHandler((call) async {
@@ -53,6 +56,7 @@ class SmsUserConsent {
     _receivedSms = null;
     _phoneNumberListener = null;
     _smsListener = null;
+    channel = null;
   }
 
   /// Updates Phone number listener
