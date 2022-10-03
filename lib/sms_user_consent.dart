@@ -35,7 +35,7 @@ class SmsUserConsent {
     }
     _phoneNumberListener = phoneNumberListener;
     _smsListener = smsListener;
-    _channel.setMethodCallHandler((call) async {
+    channel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'selectedPhoneNumber':
           _selectedPhoneNumber = call.arguments;
@@ -70,7 +70,7 @@ class SmsUserConsent {
   ///
   /// In case of multiple sim, a dialog is displayed.
   void requestPhoneNumber() async =>
-      await _channel.invokeMethod('requestPhoneNumber');
+      await channel.invokeMethod('requestPhoneNumber');
 
   /// Start listening for an incoming message for the next five minutes.
   ///
@@ -81,6 +81,6 @@ class SmsUserConsent {
   ///
   /// Once a sms is received, you will have to call this method again to receive
   /// another sms.
-  void requestSms({String? senderPhoneNumber}) async => await _channel
+  void requestSms({String? senderPhoneNumber}) async => await channel
       .invokeMethod('requestSms', {"senderPhoneNumber": senderPhoneNumber});
 }
