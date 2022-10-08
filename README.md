@@ -1,6 +1,7 @@
 # sms_user_consent
 
 Request user's phone number (supports dual sim) and/or consent to read SMS without adding any permissions, using Android's [SMS User Consent API](https://developers.google.com/identity/sms-retriever/user-consent/overview)
+This package is actually the same package [SMS User Consent API]([https://developers.google.com/identity/sms-retriever/user-consent/overview](https://pub.dev/packages/sms_user_consent)) but change chanel type from private to public to can dispose chanel
 
 ## Screenshots
 
