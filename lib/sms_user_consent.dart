@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 /// consent to read a single SMS verification message.
 class SmsUserConsent {
   MethodChannel? channel = const MethodChannel('sms_user_consent');
+  bool canReceiveMessage = true;
   Function? _phoneNumberListener;
   Function? _smsListener;
   String? _selectedPhoneNumber;
@@ -31,6 +32,7 @@ class SmsUserConsent {
   /// - If you specified the sender's phone number, the message was sent by that number.
   SmsUserConsent({Function? phoneNumberListener, Function? smsListener}) {
     if(channel == null){
+      canReceiveMessage = true;
     channel = const MethodChannel('sms_user_consent');
     }
     _phoneNumberListener = phoneNumberListener;
@@ -52,6 +54,7 @@ class SmsUserConsent {
 
   /// Clears last phone number, sms and their respective listeners.
   void dispose() {
+    canReceiveMessage = false;
     _selectedPhoneNumber = null;
     _receivedSms = null;
     _phoneNumberListener = null;
@@ -81,5 +84,9 @@ class SmsUserConsent {
   ///
   /// Once a sms is received, you will have to call this method again to receive
   /// another sms.
-  void requestSms({String? senderPhoneNumber}) async => await channel!.invokeMethod('requestSms', {"senderPhoneNumber": senderPhoneNumber});
+  void requestSms({String? senderPhoneNumber}) async{
+    if(canReceiveMessage){
+      await channel!.invokeMethod('requestSms', {"senderPhoneNumber": senderPhoneNumber});
+    }
+  }
 }
