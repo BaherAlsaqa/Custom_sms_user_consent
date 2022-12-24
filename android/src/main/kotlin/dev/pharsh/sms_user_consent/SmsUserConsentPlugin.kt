@@ -2,6 +2,9 @@ package dev.pharsh.sms_user_consent
 
 import android.app.Activity
 import android.content.*
+import android.os.Bundle
+import android.telephony.SmsMessage
+import android.util.Log
 import androidx.annotation.NonNull
 import com.google.android.gms.auth.api.credentials.Credential
 import com.google.android.gms.auth.api.credentials.Credentials
@@ -17,6 +20,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import android.text.TextUtils
+
 
 /** SmsUserConsentPlugin */
 class SmsUserConsentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -29,11 +34,13 @@ class SmsUserConsentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        Log.e("---", "sms ==============> onMethodCall")
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sms_user_consent")
         channel.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+        Log.e("---", "sms ==============> onMethodCall")
         when (call.method) {
             "requestPhoneNumber" -> {
                 requestHint()
@@ -56,6 +63,7 @@ class SmsUserConsentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mActivity = binding.activity
 
         binding.addActivityResultListener { requestCode, resultCode, data ->
+            Log.e("---", "sms ==============> " + data.toString())
             when (requestCode) {
                 CREDENTIAL_PICKER_REQUEST -> {// Obtain the phone number from the result
                     if (resultCode == Activity.RESULT_OK && data != null) {
@@ -68,7 +76,7 @@ class SmsUserConsentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 SMS_CONSENT_REQUEST -> {// Obtain the phone number from the result
                     if (resultCode == Activity.RESULT_OK && data != null) {
                         channel
-                                .invokeMethod("receivedSms", data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE))
+                            .invokeMethod("receivedSms", data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE))
                         mActivity.unregisterReceiver(smsVerificationReceiver)
                     } else {
                         // Consent denied. User can type OTC manually.
@@ -102,16 +110,30 @@ class SmsUserConsentPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val smsVerificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (SmsRetriever.SMS_RETRIEVED_ACTION == intent.action) {
+
                 val extras = intent.extras
                 val smsRetrieverStatus = extras?.get(SmsRetriever.EXTRA_STATUS) as Status
 
+                Log.e("---", "sms ....... " + intent.data + " " + intent.toString())
+
                 when (smsRetrieverStatus.statusCode) {
                     CommonStatusCodes.SUCCESS -> {
+
+
+                        // Get SMS message contents
+
+                        // Get SMS message contents
+                        val message = extras[SmsRetriever.EXTRA_SMS_MESSAGE] as String?
+
+
                         // Get consent intent
                         try {
                             // Start activity to show consent dialog to user, activity must be started in
                             // 5 minutes, otherwise you'll receive another TIMEOUT intent
-                            mActivity.startActivityForResult(extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT), SMS_CONSENT_REQUEST)
+                            mActivity.startActivityForResult(
+                                extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT),
+                                SMS_CONSENT_REQUEST
+                            )
                         } catch (e: ActivityNotFoundException) {
                             // Handle the exception ...
                         }

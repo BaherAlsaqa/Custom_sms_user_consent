@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:sms_user_consent/sms_user_consent.dart';
+import 'package:sms_user_consent_manager/sms_user_consent.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +20,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     smsUserConsent = SmsUserConsent(
         phoneNumberListener: () => setState(() {}),
-        smsListener: () => setState(() {}));
+        smsListener: () => setState(() {
+              print("sms ----------------> ${smsUserConsent.receivedSms}");
+            }));
   }
 
   @override
